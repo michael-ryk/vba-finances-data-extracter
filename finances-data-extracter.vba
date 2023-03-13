@@ -57,36 +57,41 @@ For Each rangeRow In RangeBankAccount.Rows
     ItemAdded = False
     MainCurrentRow = MainWorksheetStartRow
     
-    While rangeRow.Columns("A") <= MainWorksheet.Cells(MainCurrentRow, "C")
-        'Debug.Print ("While: " & MainWorksheet.Cells(MainCurrentRow, "C"))
-        
-        If rangeRow.Columns("A") = MainWorksheet.Cells(MainCurrentRow, "C") Then
-            
-            MainOperation = MainWorksheet.Cells(MainCurrentRow, "D")
-            MainOutcome = MainWorksheet.Cells(MainCurrentRow, "E")
-            MainIncome = MainWorksheet.Cells(MainCurrentRow, "F")
-            MainRemain = MainWorksheet.Cells(MainCurrentRow, "G")
-            
-            Debug.Print ("=== DATE MATCH - " & rangeRow.Columns("A"))
-            Debug.Print ("Main Outcome-Income: " & MainOutcome & " - " & MainIncome)
-            
-            If ExportOutcome = MainOutcome And ExportIncome = MainIncome Then
-                Debug.Print ("!!! Item already exist - Don't add anything")
-                ItemExist = True
-            End If
-            
-            If ExportOutcome <> MainOutcome And ExportIncome <> MainIncome Then
-                Debug.Print ("!!! Same Date but item different - ADD IT HERE")
-                ItemAdded = True
-            End If
-            
-        End If
-        
+    'Forward pointer to relevant point expDate < MainDate
+    While rangeRow.Columns("A") < MainWorksheet.Cells(MainCurrentRow, "C")
         MainCurrentRow = MainCurrentRow + 1
     Wend
     
+    'Pass over all Items with same ExportItem Date
+    Do While rangeRow.Columns("A") = MainWorksheet.Cells(MainCurrentRow, "C")
+            
+        MainOperation = MainWorksheet.Cells(MainCurrentRow, "D")
+        MainOutcome = MainWorksheet.Cells(MainCurrentRow, "E")
+        MainIncome = MainWorksheet.Cells(MainCurrentRow, "F")
+        MainRemain = MainWorksheet.Cells(MainCurrentRow, "G")
+        
+        Debug.Print ("=== DATE MATCH - " & rangeRow.Columns("A"))
+        Debug.Print ("Main Outcome-Income: " & MainOutcome & " - " & MainIncome)
+        
+        'Test if item already exist in MainTable and skip add part
+        If ExportOutcome = MainOutcome And ExportIncome = MainIncome Then
+            Debug.Print ("!!! Item already exist - Don't add anything - break while loop")
+            ItemExist = True
+            Exit Do
+        End If
+        
+        'Date is same but content not - Add new item
+        If ExportOutcome <> MainOutcome And ExportIncome <> MainIncome Then
+            Debug.Print ("!!! Same Date but item different - ADD IT HERE - row: " & MainCurrentRow)
+            ItemAdded = True
+        End If
+        
+        MainCurrentRow = MainCurrentRow + 1
+    Loop
+    
+    'Item have diffirent date - Ensure it not added already and add it
     If Not (ItemExist) And Not (ItemAdded) Then
-        Debug.Print ("!!! Date not found - New Item - ADD IT HERE")
+        Debug.Print ("!!! Date not found - New Item - ADD IT HERE - row: " & MainCurrentRow)
     End If
                     
     Debug.Print ("-")
