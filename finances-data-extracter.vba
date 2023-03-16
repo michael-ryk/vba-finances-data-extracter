@@ -40,8 +40,8 @@ Sub FinancesDataExtracter()
     Set ExportDataWorkbook = ActiveWorkbook
     LastRowBankAccount = Cells(Rows.Count, 1).End(xlUp).row
     
-    'Set RangeBankAccount = ExportDataWorkbook.ActiveSheet.Range(Cells(FirstRowBankAccount, 1), Cells(LastRowBankAccount, 7))
-    Set RangeBankAccount = ExportDataWorkbook.ActiveSheet.Range("A14:A16")    'For debug
+    Set RangeBankAccount = ExportDataWorkbook.ActiveSheet.Range(Cells(FirstRowBankAccount, 1), Cells(LastRowBankAccount, 7))
+    'Set RangeBankAccount = ExportDataWorkbook.ActiveSheet.Range("A14:A20")    'For debug
     
     'Go back to main workbook
     MainWorkbook.Activate
@@ -72,8 +72,8 @@ Sub FinancesDataExtracter()
             MainCurrentRow = MainCurrentRow + 1
         Wend
         
-        'Set row for potential 1 line before first date equal begin
-        AddItemRow = MainCurrentRow - 1
+        'Set row for potential add item to main table
+        AddItemRow = MainCurrentRow
         
         '--------------------------------------------------------
         'Loop over Main Workbook Items with date = exportItemDate
@@ -89,11 +89,15 @@ Sub FinancesDataExtracter()
             Debug.Print ("Main Outcome-Income: " & MainOutcome & " - " & MainIncome)
             
             'Test if item already exist in MainTable and skip add part
-            If ((ExportOutcome = MainOutcome) And (ExportIncome = MainIncome)) Then
+            If ((ExportOutcome = MainOutcome) And _
+                (ExportIncome = MainIncome) And _
+                (ExportRemain = MainRemain)) Then
+                
                 Debug.Print ("!!! Item already found - Set AddItem = False")
                 ItemExist = True
                 AddItem = False
                 Exit Do
+                
             End If
             
             MainCurrentRow = MainCurrentRow + 1
@@ -105,19 +109,17 @@ Sub FinancesDataExtracter()
         'When loop throgh dates found it not exist - Add it
         If (AddItem) Then
             
-            Debug.Print ("Row for insert : " & AddItemRow)
+            Debug.Print ("Row for insert : " & MainCurrentRow)
             ItemAdded = True
-            MainWorksheet.Cells(AddItemRow + 1, "A").EntireRow.Insert
-            AddItemRow = AddItemRow + 1
-            
-            MainWorksheet.Cells(AddItemRow, "C").Value = rangeRow.Columns("A")
-            MainWorksheet.Cells(AddItemRow, "D").Value = ExportOperation
-            MainWorksheet.Cells(AddItemRow, "E").Value = ExportOutcome
-            MainWorksheet.Cells(AddItemRow, "F").Value = ExportIncome
-            MainWorksheet.Cells(AddItemRow, "G").Value = ExportRemain
+            MainWorksheet.Cells(MainCurrentRow, "A").EntireRow.Insert
+            MainWorksheet.Cells(MainCurrentRow, "C").Value = rangeRow.Columns("A")
+            MainWorksheet.Cells(MainCurrentRow, "D").Value = ExportOperation
+            MainWorksheet.Cells(MainCurrentRow, "E").Value = ExportOutcome
+            MainWorksheet.Cells(MainCurrentRow, "F").Value = ExportIncome
+            MainWorksheet.Cells(MainCurrentRow, "G").Value = ExportRemain
             
             'Move pointer to next row
-            MainCurrentRow = AddItemRow + 1
+            'MainCurrentRow = AddItemRow + 1
             Debug.Print ("Row Add finish - Current row to check: " & MainCurrentRow)
             Debug.Print ("MainOutcome " & MainWorksheet.Cells(MainCurrentRow, "E"))
         Else
