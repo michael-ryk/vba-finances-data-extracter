@@ -5,6 +5,11 @@ Sub FinancesDataExtracter()
     'Constants
     Const FirstRowBankAccount = 14
     Const MainWorksheetStartRow = 3
+    Const mColumnDate = "C"
+    Const mColumnOperation = "D"
+    Const mColumnOutcome = "E"
+    Const mColumnIncome = "F"
+    Const mColumnRemain = "G"
     
     Debug.Print ("===== Start macro ======")
     
@@ -78,14 +83,14 @@ Sub FinancesDataExtracter()
         '--------------------------------------------------------
         'Loop over Main Workbook Items with date = exportItemDate
         '--------------------------------------------------------
-        Do While ExportDate = MainWorksheet.Cells(MainCurrentRow, "C")
+        Do While ExportDate = MainWorksheet.Cells(MainCurrentRow, mColumnDate)
                 
-            MainOperation = MainWorksheet.Cells(MainCurrentRow, "D")
-            MainOutcome = MainWorksheet.Cells(MainCurrentRow, "E")
-            MainIncome = MainWorksheet.Cells(MainCurrentRow, "F")
-            MainRemain = MainWorksheet.Cells(MainCurrentRow, "G")
+            MainOperation = MainWorksheet.Cells(MainCurrentRow, mColumnOperation)
+            MainOutcome = MainWorksheet.Cells(MainCurrentRow, mColumnOutcome)
+            MainIncome = MainWorksheet.Cells(MainCurrentRow, mColumnIncome)
+            MainRemain = MainWorksheet.Cells(MainCurrentRow, mColumnRemain)
             
-            Debug.Print ("=== DATE MATCH on row: " & MainCurrentRow & " Date: " & MainWorksheet.Cells(MainCurrentRow, "C"))
+            Debug.Print ("=== DATE MATCH on row: " & MainCurrentRow & " Date: " & MainWorksheet.Cells(MainCurrentRow, mColumnDate))
             Debug.Print ("Main Outcome-Income: " & MainOutcome & " - " & MainIncome)
             
             'Test if item already exist in MainTable and skip add part
@@ -112,18 +117,15 @@ Sub FinancesDataExtracter()
             Debug.Print ("Row for insert : " & MainCurrentRow)
             ItemAdded = True
             MainWorksheet.Cells(MainCurrentRow, "A").EntireRow.Insert
-            MainWorksheet.Cells(MainCurrentRow, "C").Value = rangeRow.Columns("A")
-            MainWorksheet.Cells(MainCurrentRow, "D").Value = ExportOperation
-            MainWorksheet.Cells(MainCurrentRow, "E").Value = ExportOutcome
-            MainWorksheet.Cells(MainCurrentRow, "F").Value = ExportIncome
-            MainWorksheet.Cells(MainCurrentRow, "G").Value = ExportRemain
             
-            'Move pointer to next row
-            'MainCurrentRow = AddItemRow + 1
+            'Set values for new empty row
+            MainWorksheet.Cells(MainCurrentRow, mColumnDate).Value = ExportDate
+            MainWorksheet.Cells(MainCurrentRow, mColumnOperation).Value = ExportOperation
+            MainWorksheet.Cells(MainCurrentRow, mColumnOutcome).Value = ExportOutcome
+            MainWorksheet.Cells(MainCurrentRow, mColumnIncome).Value = ExportIncome
+            MainWorksheet.Cells(MainCurrentRow, mColumnRemain).Value = ExportRemain
+            
             Debug.Print ("Row Add finish - Current row to check: " & MainCurrentRow)
-            Debug.Print ("MainOutcome " & MainWorksheet.Cells(MainCurrentRow, "E"))
-        Else
-            Debug.Print ("Don't Add item")
         End If
         
         Debug.Print ("-")
