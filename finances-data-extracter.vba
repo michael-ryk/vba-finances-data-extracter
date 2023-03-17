@@ -22,7 +22,6 @@ Sub FinancesDataExtracter()
     
     Dim MainCurrentRow      As Integer
     Dim AddItemRow          As Integer
-    Dim ItemExist           As Boolean
     Dim ItemAdded           As Boolean
     Dim AddItem             As Boolean
     
@@ -65,7 +64,6 @@ Sub FinancesDataExtracter()
         Debug.Print ("----------------- Item Start -------------------")
         Debug.Print ("ExpData> Date: " & ExportDate & " Out-In: " & ExportOutcome & " - " & ExportIncome)
         
-        ItemExist = False
         ItemAdded = True
         AddItem = True
         MainCurrentRow = MainWorksheetStartRow
@@ -99,7 +97,6 @@ Sub FinancesDataExtracter()
                 (ExportRemain = MainRemain)) Then
                 
                 Debug.Print ("!!! Item already found - Set AddItem = False")
-                ItemExist = True
                 AddItem = False
                 Exit Do
                 
