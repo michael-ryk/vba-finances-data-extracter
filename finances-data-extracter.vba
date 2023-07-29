@@ -17,82 +17,82 @@ Sub FinancesDataExtracter()
     
     Dim TargetWorksheet       As Worksheet
     Dim SourceDataWorkbook  As Workbook
-    Dim LastRowBankAccount  As Integer
-    Dim RangeBankAccount    As Range
+    Dim SourceLastRow  As Integer
+    Dim SourceTableRange    As Range
     
-    Dim MainCurrentRow      As Integer
+    Dim TargetCurrentRow      As Integer
     Dim AddItemRow          As Integer
     Dim ItemAdded           As Boolean
     Dim AddItem             As Boolean
     
-    Dim MainOperation       As String
-    Dim MainOutcome         As Variant  'Because it may be "-" when 0
+    Dim TargetOperation       As String
+    Dim TargetSpent         As Variant  'Because it may be "-" when 0
     Dim MainIncome          As Variant  'Because it may be "-" when 0
     Dim MainRemain          As Variant  'Because it may be "-" when 0
     
-    Dim ExportOperation     As String
-    Dim ExportOutcome       As Variant  'Because it may be "-" when 0
+    Dim SourceOperation     As String
+    Dim SourceSpent       As Variant  'Because it may be "-" when 0
     Dim ExportIncome        As Variant  'Because it may be "-" when 0
     Dim ExportRemain        As Variant  'Because it may be "-" when 0
     
     'Save current workbook range for later when be focused on another worksheet
-    Set MainWorkbook = ActiveWorkbook
+    Set TargetWorkbook = ActiveWorkbook
     Set TargetWorksheet = ActiveSheet
     
     'Open Bank account export data
     Workbooks.Open "d:\tmp\BankExports\Bank-Movement.xls"
     Set SourceDataWorkbook = ActiveWorkbook
-    LastRowBankAccount = Cells(Rows.Count, 1).End(xlUp).row
+    SourceLastRow = Cells(Rows.Count, 1).End(xlUp).row
     
-    Set RangeBankAccount = SourceDataWorkbook.ActiveSheet.Range(Cells(SourceFirstRowOfTable, 1), Cells(LastRowBankAccount, 7))
-    'Set RangeBankAccount = SourceDataWorkbook.ActiveSheet.Range("A14:A20")    'For debug
+    Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range(Cells(SourceFirstRowOfTable, 1), Cells(SourceLastRow, 7))
+    'Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range("A14:A20")    'For debug
     
     'Go back to main workbook
-    MainWorkbook.Activate
+    TargetWorkbook.Activate
     
     '-----------------------------
     'Loop over Exported Data Items
     '-----------------------------
-    For Each rangeRow In RangeBankAccount.Rows
+    For Each rangeRow In SourceTableRange.Rows
         
-        ExportDate = rangeRow.Columns("A")
-        ExportOperation = rangeRow.Columns("C")
-        ExportOutcome = rangeRow.Columns("E")
+        SourceDate = rangeRow.Columns("A")
+        SourceOperation = rangeRow.Columns("C")
+        SourceSpent = rangeRow.Columns("E")
         ExportIncome = rangeRow.Columns("F")
         ExportRemain = rangeRow.Columns("G")
         
         Debug.Print ("----------------- Item Start -------------------")
-        Debug.Print ("ExpData> Date: " & ExportDate & " Out-In: " & ExportOutcome & " - " & ExportIncome)
+        Debug.Print ("ExpData> Date: " & SourceDate & " Out-In: " & SourceSpent & " - " & ExportIncome)
         
         ItemAdded = True
         AddItem = True
-        MainCurrentRow = TargetSheetStartRow
+        TargetCurrentRow = TargetSheetStartRow
         
         '---------------------------------------------------------
         'Loop over Main Workbook items with Date > ExportItem Date
         '---------------------------------------------------------
-        While ExportDate < TargetWorksheet.Cells(MainCurrentRow, "C")
-            MainCurrentRow = MainCurrentRow + 1
+        While SourceDate < TargetWorksheet.Cells(TargetCurrentRow, "C")
+            TargetCurrentRow = TargetCurrentRow + 1
         Wend
         
         'Set row for potential add item to main table
-        AddItemRow = MainCurrentRow
+        AddItemRow = TargetCurrentRow
         
         '--------------------------------------------------------
         'Loop over Main Workbook Items with date = exportItemDate
         '--------------------------------------------------------
-        Do While ExportDate = TargetWorksheet.Cells(MainCurrentRow, TargetColumnDate)
+        Do While SourceDate = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate)
                 
-            MainOperation = TargetWorksheet.Cells(MainCurrentRow, TargetColumnOperationName)
-            MainOutcome = TargetWorksheet.Cells(MainCurrentRow, TargetColumnSpent)
-            MainIncome = TargetWorksheet.Cells(MainCurrentRow, mColumnIncome)
-            MainRemain = TargetWorksheet.Cells(MainCurrentRow, mColumnRemain)
+            TargetOperation = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName)
+            TargetSpent = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent)
+            MainIncome = TargetWorksheet.Cells(TargetCurrentRow, mColumnIncome)
+            MainRemain = TargetWorksheet.Cells(TargetCurrentRow, mColumnRemain)
             
-            Debug.Print ("=== DATE MATCH on row: " & MainCurrentRow & " Date: " & TargetWorksheet.Cells(MainCurrentRow, TargetColumnDate))
-            Debug.Print ("Main Outcome-Income: " & MainOutcome & " - " & MainIncome)
+            Debug.Print ("=== DATE MATCH on row: " & TargetCurrentRow & " Date: " & TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate))
+            Debug.Print ("Main Outcome-Income: " & TargetSpent & " - " & MainIncome)
             
             'Test if item already exist in MainTable and skip add part
-            If ((ExportOutcome = MainOutcome) And _
+            If ((SourceSpent = TargetSpent) And _
                 (ExportIncome = MainIncome) And _
                 (ExportRemain = MainRemain)) Then
                 
@@ -102,7 +102,7 @@ Sub FinancesDataExtracter()
                 
             End If
             
-            MainCurrentRow = MainCurrentRow + 1
+            TargetCurrentRow = TargetCurrentRow + 1
             Debug.Print ("Item with same date not found - AddItem = " & AddItem)
         Loop
         
@@ -111,18 +111,18 @@ Sub FinancesDataExtracter()
         'When loop throgh dates found it not exist - Add it
         If (AddItem) Then
             
-            Debug.Print ("Row for insert : " & MainCurrentRow)
+            Debug.Print ("Row for insert : " & TargetCurrentRow)
             ItemAdded = True
-            TargetWorksheet.Cells(MainCurrentRow, "A").EntireRow.Insert
+            TargetWorksheet.Cells(TargetCurrentRow, "A").EntireRow.Insert
             
             'Set values for new empty row
-            TargetWorksheet.Cells(MainCurrentRow, TargetColumnDate).value = ExportDate
-            TargetWorksheet.Cells(MainCurrentRow, TargetColumnOperationName).value = ExportOperation
-            TargetWorksheet.Cells(MainCurrentRow, TargetColumnSpent).value = ExportOutcome
-            TargetWorksheet.Cells(MainCurrentRow, mColumnIncome).value = ExportIncome
-            TargetWorksheet.Cells(MainCurrentRow, mColumnRemain).value = ExportRemain
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).value = SourceDate
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).value = SourceOperation
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).value = SourceSpent
+            TargetWorksheet.Cells(TargetCurrentRow, mColumnIncome).value = ExportIncome
+            TargetWorksheet.Cells(TargetCurrentRow, mColumnRemain).value = ExportRemain
             
-            Debug.Print ("Row Add finish - Current row to check: " & MainCurrentRow)
+            Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
         
         Debug.Print ("-")
@@ -150,74 +150,74 @@ Sub CreditCardDataExtracter()
     
     Dim TargetWorksheet     As Worksheet
     Dim SourceDataWorkbook  As Workbook
-    Dim LastRowBankAccount  As Integer
-    Dim RangeBankAccount    As Range
+    Dim SourceLastRow       As Integer
+    Dim SourceTableRange    As Range
     
-    Dim MainCurrentRow      As Integer
+    Dim TargetCurrentRow    As Integer
     Dim AddItemRow          As Integer
     Dim ItemAdded           As Boolean
     Dim AddItem             As Boolean
     
-    Dim MainOperation       As String
-    Dim MainOutcome         As Variant  'Because it may be "-" when 0
+    Dim TargetOperation     As String
+    Dim TargetSpent         As Variant  'Because it may be "-" when 0
     
-    Dim ExportOperation     As String
-    Dim ExportOutcome       As Variant  'Because it may be "-" when 0
+    Dim SourceOperation     As String
+    Dim SourceSpent         As Variant  'Because it may be "-" when 0
     
     'Save current workbook range for later when be focused on another worksheet
-    Set MainWorkbook = ActiveWorkbook
+    Set TargetWorkbook = ActiveWorkbook
     Set TargetWorksheet = ActiveSheet
     
     'Open Bank account export data
     Workbooks.Open "d:\tmp\BankExports\Credit-card.xls"
     Set SourceDataWorkbook = ActiveWorkbook
-    LastRowBankAccount = Cells(Rows.Count, 1).End(xlUp).row
+    SourceLastRow = Cells(Rows.Count, 1).End(xlUp).row
     
-    Set RangeBankAccount = SourceDataWorkbook.ActiveSheet.Range(Cells(SourceFirstRowOfTable, 1), Cells(LastRowBankAccount, 7))
-    'Set RangeBankAccount = SourceDataWorkbook.ActiveSheet.Range("A12:A16")    'For debug
+    Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range(Cells(SourceFirstRowOfTable, 1), Cells(SourceLastRow, 7))
+    'Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range("A12:A16")    'For debug
     
     'Go back to main workbook
-    MainWorkbook.Activate
+    TargetWorkbook.Activate
     
     '-----------------------------
     'Loop over Exported Data Items
     '-----------------------------
-    For Each rangeRow In RangeBankAccount.Rows
+    For Each rangeRow In SourceTableRange.Rows
         
-        ExportDate = rangeRow.Columns(SourceColumnDate)
-        ExportOperation = rangeRow.Columns(SourceColumnOperationName)
-        ExportOutcome = rangeRow.Columns(SourceColumnSpent)
+        SourceDate = rangeRow.Columns(SourceColumnDate)
+        SourceOperation = rangeRow.Columns(SourceColumnOperationName)
+        SourceSpent = rangeRow.Columns(SourceColumnSpent)
         
         Debug.Print ("----------------- Item Start -------------------")
-        Debug.Print ("ExpData> Date: " & ExportDate & " Spent: " & ExportOutcome)
+        Debug.Print ("ExpData> Date: " & SourceDate & " Spent: " & SourceSpent)
         
         ItemAdded = True
         AddItem = True
-        MainCurrentRow = TargetSheetStartRow
+        TargetCurrentRow = TargetSheetStartRow
         
         '---------------------------------------------------------
         'Loop over Main Workbook items with Date > ExportItem Date
         '---------------------------------------------------------
-        While ExportDate < TargetWorksheet.Cells(MainCurrentRow, "C")
-            MainCurrentRow = MainCurrentRow + 1
+        While SourceDate < TargetWorksheet.Cells(TargetCurrentRow, "C")
+            TargetCurrentRow = TargetCurrentRow + 1
         Wend
         
         'Set row for potential add item to main table
-        AddItemRow = MainCurrentRow
+        AddItemRow = TargetCurrentRow
         
         '--------------------------------------------------------
         'Loop over Main Workbook Items with date = exportItemDate
         '--------------------------------------------------------
-        Do While ExportDate = TargetWorksheet.Cells(MainCurrentRow, TargetColumnDate)
+        Do While SourceDate = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate)
                 
-            MainOperation = TargetWorksheet.Cells(MainCurrentRow, TargetColumnOperationName)
-            MainOutcome = TargetWorksheet.Cells(MainCurrentRow, TargetColumnSpent)
+            TargetOperation = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName)
+            TargetSpent = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent)
             
-            Debug.Print ("=== DATE MATCH on row: " & MainCurrentRow & " Date: " & TargetWorksheet.Cells(MainCurrentRow, TargetColumnDate))
-            Debug.Print ("Main Spent: " & MainOutcome)
+            Debug.Print ("=== DATE MATCH on row: " & TargetCurrentRow & " Date: " & TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate))
+            Debug.Print ("Main Spent: " & TargetSpent)
             
             'Test if item already exist in MainTable and skip add part
-            If (ExportOutcome = MainOutcome) Then
+            If (SourceSpent = TargetSpent) Then
                 
                 Debug.Print ("!!! Item already found - Set AddItem = False")
                 AddItem = False
@@ -225,7 +225,7 @@ Sub CreditCardDataExtracter()
                 
             End If
             
-            MainCurrentRow = MainCurrentRow + 1
+            TargetCurrentRow = TargetCurrentRow + 1
             Debug.Print ("Item with same date not found - AddItem = " & AddItem)
         Loop
         
@@ -234,16 +234,16 @@ Sub CreditCardDataExtracter()
         'When loop throgh dates found it not exist - Add it
         If (AddItem) Then
             
-            Debug.Print ("Row for insert : " & MainCurrentRow)
+            Debug.Print ("Row for insert : " & TargetCurrentRow)
             ItemAdded = True
-            TargetWorksheet.Cells(MainCurrentRow, "A").EntireRow.Insert CopyOrigin:=xlFormatFromLeftOrAbove
+            TargetWorksheet.Cells(TargetCurrentRow, "A").EntireRow.Insert CopyOrigin:=xlFormatFromLeftOrAbove
             
             'Set values for new empty row
-            TargetWorksheet.Cells(MainCurrentRow, TargetColumnDate).value = ExportDate
-            TargetWorksheet.Cells(MainCurrentRow, TargetColumnOperationName).value = ExportOperation
-            TargetWorksheet.Cells(MainCurrentRow, TargetColumnSpent).value = ExportOutcome
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).value = SourceDate
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).value = SourceOperation
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).value = SourceSpent
             
-            Debug.Print ("Row Add finish - Current row to check: " & MainCurrentRow)
+            Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
         
         Debug.Print ("-")
