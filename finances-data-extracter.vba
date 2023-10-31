@@ -116,11 +116,11 @@ Sub FinancesDataExtracter()
             TargetWorksheet.Cells(TargetCurrentRow, "A").EntireRow.Insert
             
             'Set values for new empty row
-            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).value = SourceDate
-            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).value = SourceOperation
-            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).value = SourceSpent
-            TargetWorksheet.Cells(TargetCurrentRow, mColumnIncome).value = ExportIncome
-            TargetWorksheet.Cells(TargetCurrentRow, mColumnRemain).value = ExportRemain
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).Value = SourceDate
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).Value = SourceOperation
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).Value = SourceSpent
+            TargetWorksheet.Cells(TargetCurrentRow, mColumnIncome).Value = ExportIncome
+            TargetWorksheet.Cells(TargetCurrentRow, mColumnRemain).Value = ExportRemain
             
             Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
@@ -131,8 +131,10 @@ Sub FinancesDataExtracter()
 End Sub
 
 Sub CreditCardDataExtracter()
+    '====================================
     'Export data from Credit card report
     'Run this macro and proved path for data and target file
+    '====================================
     
     'Constants
     Const SourceFirstRowOfTable = 12
@@ -231,7 +233,9 @@ Sub CreditCardDataExtracter()
         
         Debug.Print ("End of Main workbook loop")
         
-        'When loop throgh dates found it not exist - Add it
+        '--------------------------------------------------
+        'If Item not exist - Add it
+        '--------------------------------------------------
         If (AddItem) Then
             
             Debug.Print ("Row for insert : " & TargetCurrentRow)
@@ -239,12 +243,14 @@ Sub CreditCardDataExtracter()
             TargetWorksheet.Cells(TargetCurrentRow, "A").EntireRow.Insert CopyOrigin:=xlFormatFromLeftOrAbove
             
             'Set values for new empty row
-            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).value = SourceDate
-            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).value = SourceOperation
-            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).value = SourceSpent
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).Value = SourceDate
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).Value = SourceOperation
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).Value = SourceSpent
             
             Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
+        
+        SourceDataWorkbook.Close SaveChanges:=False
         
         Debug.Print ("-")
     Next rangeRow
