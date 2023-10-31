@@ -131,10 +131,10 @@ Sub FinancesDataExtracter()
             Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
         
-        SourceDataWorkbook.Close SaveChanges:=False
-        
         Debug.Print ("-")
     Next rangeRow
+    
+    SourceDataWorkbook.Close SaveChanges:=False
 
 End Sub
 
@@ -190,7 +190,7 @@ Sub CreditCardDataExtracter()
     TargetWorkbook.Activate
     
     '-----------------------------
-    'Loop over Exported Data Items
+    'Loop over excel exported from Bank
     '-----------------------------
     For Each rangeRow In SourceTableRange.Rows
         
@@ -201,6 +201,7 @@ Sub CreditCardDataExtracter()
         Debug.Print ("----------------- Item Start -------------------")
         Debug.Print ("ExpData> Date: " & SourceDate & " Spent: " & SourceSpent)
         
+        'By default item will be added - prove overwise if no need
         ItemAdded = True
         AddItem = True
         TargetCurrentRow = TargetSheetStartRow
@@ -216,10 +217,10 @@ Sub CreditCardDataExtracter()
         AddItemRow = TargetCurrentRow
         
         '--------------------------------------------------------
-        'Loop over Main Workbook Items with date = exportItemDate
+        'Loop over My excel and check match date = exportItemDate
         '--------------------------------------------------------
         Do While SourceDate = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate)
-                
+            
             TargetOperation = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName)
             TargetSpent = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent)
             
@@ -242,25 +243,25 @@ Sub CreditCardDataExtracter()
         Debug.Print ("End of Main workbook loop")
         
         '--------------------------------------------------
-        'If Item not exist - Add it
+        'Add Item to my Excel
         '--------------------------------------------------
         If (AddItem) Then
             
             Debug.Print ("Row for insert : " & TargetCurrentRow)
             ItemAdded = True
-            TargetWorksheet.Cells(TargetCurrentRow, "A").EntireRow.Insert CopyOrigin:=xlFormatFromLeftOrAbove
             
-            'Set values for new empty row
+            'Add new row to my excel and put all values
+            TargetWorksheet.Cells(TargetCurrentRow, "A").EntireRow.Insert CopyOrigin:=xlFormatFromLeftOrAbove
             TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).Value = SourceDate
             TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).Value = SourceOperation
             TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).Value = SourceSpent
             
             Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
-        
-        SourceDataWorkbook.Close SaveChanges:=False
-        
+                
         Debug.Print ("-")
     Next rangeRow
+
+    SourceDataWorkbook.Close SaveChanges:=False
 
 End Sub
