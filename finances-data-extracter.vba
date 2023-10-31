@@ -1,6 +1,8 @@
 Sub FinancesDataExtracter()
+    '=======================================================
     'Export data from bank accounts to excel
     'Run this macro and proved path for data and target file
+    '=======================================================
     
     'Constants
     Const SourceFirstRowOfTable = 14
@@ -13,7 +15,9 @@ Sub FinancesDataExtracter()
     
     Debug.Print ("===== Start macro ======")
     
+    '------------------
     'Declare Variables
+    '------------------
     
     Dim TargetWorksheet       As Worksheet
     Dim SourceDataWorkbook  As Workbook
@@ -108,7 +112,9 @@ Sub FinancesDataExtracter()
         
         Debug.Print ("End of Main workbook loop")
         
-        'When loop throgh dates found it not exist - Add it
+        '--------------------------------------------------
+        'If Item not exist - Add it
+        '--------------------------------------------------
         If (AddItem) Then
             
             Debug.Print ("Row for insert : " & TargetCurrentRow)
@@ -124,6 +130,8 @@ Sub FinancesDataExtracter()
             
             Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
+        
+        SourceDataWorkbook.Close SaveChanges:=False
         
         Debug.Print ("-")
     Next rangeRow
