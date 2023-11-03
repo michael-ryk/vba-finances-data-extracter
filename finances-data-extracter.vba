@@ -148,30 +148,30 @@ Sub CreditCardDataExtracter()
     Const SourceFirstRowOfTable = 12
     Const TargetSheetStartRow = 3
     Const TargetColumnDate = "C"
-    Const TargetColumnOperationName = "D"
-    Const TargetColumnSpent = "E"
+    Const TargetColumnCreditMonth = "D"
+    Const TargetColumnOperationName = "E"
+    Const TargetColumnSpent = "F"
     Const SourceColumnDate = "A"
     Const SourceColumnOperationName = "B"
-    Const SourceColumnDetails = "E"
     Const SourceColumnSpent = "F"
     
     Debug.Print ("===== Start macro ======")
     
     'Declare Variables
-    
     Dim TargetWorksheet     As Worksheet
     Dim SourceDataWorkbook  As Workbook
     Dim SourceLastRow       As Integer
     Dim SourceTableRange    As Range
-    
-    Dim TargetCurrentRow    As Integer
-    Dim AddItemRow          As Integer
-    Dim ItemAdded           As Boolean
-    Dim AddItem             As Boolean
-    
     Dim TargetOperation     As String
     Dim TargetSpent         As Variant  'Because it may be "-" when 0
-        
+    Dim TargetCreditMonth   As String
+    Dim CreditMonth         As String
+    
+    CreditMonth = InputBox("Enter year-month for which payment taken by credit card", "Credit Period", "2023-11")
+    If StrPtr(CreditMonth) = 0 Then
+        Exit Sub
+    End If
+    
     'Save current workbook range for later when be focused on another worksheet
     Set TargetWorkbook = ActiveWorkbook
     Set TargetWorksheet = ActiveSheet
@@ -182,15 +182,28 @@ Sub CreditCardDataExtracter()
     SourceLastRow = Cells(Rows.Count, 1).End(xlUp).row
     
     Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range(Cells(SourceFirstRowOfTable, 1), Cells(SourceLastRow, 7))
-    'Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range("A12:A16")    'For debug
+    'Set SourceTableRange = SourceDataWorkbook.ActiveSheet.Range("A1:A18")    'For debug
     
     'Go back to main workbook
     TargetWorkbook.Activate
     
     Dim SourceDate          As String
     Dim SourceOperation     As String
-    Dim SourceDetails       As String
     Dim SourceSpent         As Variant  'Because it may be "-" when 0
+    
+    Dim TargetCurrentRow    As Integer
+    Dim AddItemRow          As Integer
+    Dim ItemAdded           As Boolean
+    Dim AddItem             As Boolean
+    
+    TargetCurrentRow = TargetSheetStartRow
+    
+    '---------------------------------------------------------
+    'Find row in Target workbook where insert line with data from source
+    '---------------------------------------------------------
+    While CreditMonth <> TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)
+        TargetCurrentRow = TargetCurrentRow + 1
+    Wend
     
     '-----------------------------
     'Loop over excel exported from Bank
@@ -199,40 +212,34 @@ Sub CreditCardDataExtracter()
         
         SourceDate = rangeRow.Columns(SourceColumnDate)
         SourceOperation = rangeRow.Columns(SourceColumnOperationName)
-        SourceDetails = rangeRow.Columns(SourceColumnDetails)
         SourceSpent = rangeRow.Columns(SourceColumnSpent)
         
-        Debug.Print ("----------------- Item Start -------------------")
-        Debug.Print ("ExpData> Date: " & SourceDate & " Spent: " & SourceSpent)
+        Debug.Print ("----------------- Source Item -------------------")
+        Debug.Print ("SourceDate=" & SourceDate)
+        Debug.Print ("SourceSpent=" & SourceSpent)
         
         'By default item will be added - prove overwise if no need
         ItemAdded = True
         AddItem = True
-        TargetCurrentRow = TargetSheetStartRow
-        
-        '---------------------------------------------------------
-        'Loop over Main Workbook items with Date > ExportItem Date
-        '---------------------------------------------------------
-        While SourceDate < TargetWorksheet.Cells(TargetCurrentRow, "C")
-            TargetCurrentRow = TargetCurrentRow + 1
-        Wend
-        
+
         'Set row for potential add item to main table
         AddItemRow = TargetCurrentRow
         
         '--------------------------------------------------------
-        'Loop over My excel and check if item already exist
+        'Check if item already exist in Target workbook
         '--------------------------------------------------------
-        Do While SourceDate = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate)
-            
+
+        Do While CreditMonth = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)
+        
             TargetOperation = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName)
             TargetSpent = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent)
-            
-            Debug.Print ("=== DATE MATCH on row: " & TargetCurrentRow & " Date: " & TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate))
-            Debug.Print ("Main Spent: " & TargetSpent)
+                        
+            Debug.Print ("=== Credit Month match item in Target sheet row: " & TargetCurrentRow)
+            Debug.Print ("Target Date: " & TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate))
+            Debug.Print ("Target Spent: " & TargetSpent)
             
             'Test if item already exist in MainTable and skip add part
-            If (SourceSpent = TargetSpent) Then
+            If (SourceSpent = TargetSpent And CreditMonth = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)) Then
                 
                 Debug.Print ("!!! Item already found - Set AddItem = False")
                 AddItem = False
@@ -259,6 +266,7 @@ Sub CreditCardDataExtracter()
             TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate).Value = SourceDate
             TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName).Value = SourceOperation
             TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent).Value = SourceSpent
+            TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth).Value = CreditMonth
             
             Debug.Print ("Row Add finish - Current row to check: " & TargetCurrentRow)
         End If
