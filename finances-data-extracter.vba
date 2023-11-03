@@ -201,7 +201,7 @@ Sub CreditCardDataExtracter()
     '---------------------------------------------------------
     'Find row in Target workbook where insert line with data from source
     '---------------------------------------------------------
-    While CreditMonth <> TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)
+    While (CreditMonth <> TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth) And TargetCurrentRow < 1000)
         TargetCurrentRow = TargetCurrentRow + 1
     Wend
     
