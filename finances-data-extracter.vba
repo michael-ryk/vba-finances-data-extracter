@@ -152,6 +152,7 @@ Sub CreditCardDataExtracter()
     Const TargetColumnSpent = "E"
     Const SourceColumnDate = "A"
     Const SourceColumnOperationName = "B"
+    Const SourceColumnDetails = "E"
     Const SourceColumnSpent = "F"
     
     Debug.Print ("===== Start macro ======")
@@ -170,10 +171,7 @@ Sub CreditCardDataExtracter()
     
     Dim TargetOperation     As String
     Dim TargetSpent         As Variant  'Because it may be "-" when 0
-    
-    Dim SourceOperation     As String
-    Dim SourceSpent         As Variant  'Because it may be "-" when 0
-    
+        
     'Save current workbook range for later when be focused on another worksheet
     Set TargetWorkbook = ActiveWorkbook
     Set TargetWorksheet = ActiveSheet
@@ -189,6 +187,11 @@ Sub CreditCardDataExtracter()
     'Go back to main workbook
     TargetWorkbook.Activate
     
+    Dim SourceDate          As String
+    Dim SourceOperation     As String
+    Dim SourceDetails       As String
+    Dim SourceSpent         As Variant  'Because it may be "-" when 0
+    
     '-----------------------------
     'Loop over excel exported from Bank
     '-----------------------------
@@ -196,6 +199,7 @@ Sub CreditCardDataExtracter()
         
         SourceDate = rangeRow.Columns(SourceColumnDate)
         SourceOperation = rangeRow.Columns(SourceColumnOperationName)
+        SourceDetails = rangeRow.Columns(SourceColumnDetails)
         SourceSpent = rangeRow.Columns(SourceColumnSpent)
         
         Debug.Print ("----------------- Item Start -------------------")
@@ -217,7 +221,7 @@ Sub CreditCardDataExtracter()
         AddItemRow = TargetCurrentRow
         
         '--------------------------------------------------------
-        'Loop over My excel and check match date = exportItemDate
+        'Loop over My excel and check if item already exist
         '--------------------------------------------------------
         Do While SourceDate = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate)
             
