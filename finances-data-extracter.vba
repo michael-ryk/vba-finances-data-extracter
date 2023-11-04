@@ -201,9 +201,9 @@ Sub CreditCardDataExtracter()
     '---------------------------------------------------------
     'Find row in Target workbook where insert line with data from source
     '---------------------------------------------------------
-    While (CreditMonth <> TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth) And TargetCurrentRow < 1000)
-        TargetCurrentRow = TargetCurrentRow + 1
-    Wend
+    'While (CreditMonth <> TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth) And TargetCurrentRow < 1000)
+    '    TargetCurrentRow = TargetCurrentRow + 1
+    'Wend
     
     '-----------------------------
     'Loop over excel exported from Bank
@@ -229,29 +229,27 @@ Sub CreditCardDataExtracter()
         'Check if item already exist in Target workbook
         '--------------------------------------------------------
 
-        Do While CreditMonth = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)
+        'Do While CreditMonth = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)
         
-            TargetOperation = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName)
-            TargetSpent = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent)
+        '    TargetOperation = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnOperationName)
+        '    TargetSpent = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnSpent)
                         
-            Debug.Print ("=== Credit Month match item in Target sheet row: " & TargetCurrentRow)
-            Debug.Print ("Target Date: " & TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate))
-            Debug.Print ("Target Spent: " & TargetSpent)
+        '    Debug.Print ("=== Credit Month match item in Target sheet row: " & TargetCurrentRow)
+        '    Debug.Print ("Target Date: " & TargetWorksheet.Cells(TargetCurrentRow, TargetColumnDate))
+        '    Debug.Print ("Target Spent: " & TargetSpent)
             
             'Test if item already exist in MainTable and skip add part
-            If (SourceSpent = TargetSpent And CreditMonth = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)) Then
+        '    If (SourceSpent = TargetSpent And CreditMonth = TargetWorksheet.Cells(TargetCurrentRow, TargetColumnCreditMonth)) Then
                 
-                Debug.Print ("!!! Item already found - Set AddItem = False")
-                AddItem = False
-                Exit Do
+        '        Debug.Print ("!!! Item already found - Set AddItem = False")
+        '        AddItem = False
+        '        Exit Do
                 
-            End If
+        '    End If
             
-            TargetCurrentRow = TargetCurrentRow + 1
-            Debug.Print ("Item with same date not found - AddItem = " & AddItem)
-        Loop
-        
-        Debug.Print ("End of Main workbook loop")
+        '    TargetCurrentRow = TargetCurrentRow + 1
+        '    Debug.Print ("Item with same date not found - AddItem = " & AddItem)
+        'Loop
         
         '--------------------------------------------------
         'Add Item to my Excel
